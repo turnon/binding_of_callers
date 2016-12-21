@@ -5,20 +5,35 @@ require 'binding_of_caller'
 class Binding
 
   def of_callers
-    n = 1
-    caller_arr = caller
-    top_caller_index = caller_arr.count - 1
-    callers_vars = []
-    while n < top_caller_index
-      _binding = binding.of_caller(n)
-      src_location = caller_arr[n - 1]
-      revealed = BindingOfCallers::Revealed.new _binding, src_location 
-      callers_vars << revealed
+    enhance do |bi, loc|
+      BindingOfCallers::Revealed.new bi, loc
+    end
+  end
+
+  def of_callers!
+    enhance do |bi, loc|
+      bi.extend BindingOfCallers::Reveal
+      bi.src_location = loc
+      bi
+    end
+  end
+
+  private
+
+  def enhance &enhance
+    collected.map &enhance
+  end
+
+  def collected
+    n = 3
+    bis = []
+    while n < frame_count
+      bis << of_caller(n)
       n = n.succ
     end
-    callers_vars
-  rescue RuntimeError
-    callers_vars
+    call_st = caller
+    call_st.shift(2)
+    bis.zip call_st
   end
 
 end
