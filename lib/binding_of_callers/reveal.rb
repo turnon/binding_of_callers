@@ -9,7 +9,7 @@ module BindingOfCallers
 
     def inspect
       file, line = file_line
-      {[klass, call_symbol, frame_env, env_type, file, line] => [iv, lv]}
+      "#<#{self.class}:#{object_id} #{klass}#{call_symbol}#{frame_env} #{file}:#{line}>"
     end
 
     def iv
