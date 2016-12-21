@@ -1,6 +1,5 @@
 require 'test_helper'
 require 'mock/u'
-require 'pp'
 
 class BindingOfCallersTest < Minitest::Test
   def test_that_it_has_a_version_number
@@ -19,7 +18,8 @@ class BindingOfCallersTest < Minitest::Test
   def output
     binds = U.invoke
     (0..3).each do |n|
-      pp binds[n]
+      b = binds[n]
+      puts "#{b.inspect} #{b.iv} #{b.lv}"
     end
   end
 
