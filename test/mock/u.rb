@@ -5,3 +5,4 @@ module U
     A.new.invoke
   end
 end
+
