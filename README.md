@@ -1,8 +1,6 @@
 # BindingOfCallers
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/binding_of_callers`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Something like [binding_of_caller](https://github.com/banister/binding_of_caller "binding_of_caller"), but collect all binding of callers at once
 
 ## Installation
 
@@ -22,20 +20,85 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+binding.of_callers # => an array of wrapped binding of callers
+binding.of_callers! # => an array of extended binding of callers
+```
 
-## Development
+### Inspect and modify a binding
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+```ruby
+require 'binding_of_callers'
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+class Test
+  def a
+    var, @ivar, arr = 1, 2, []
+    b
+    p var, @ivar
+    p arr
+  end
 
-## Contributing
+  def b
+    c
+  end
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/binding_of_callers. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+  def c
+    a_bind = binding.of_callers![2]
+    p a_bind
+    p a_bind.iv, a_bind.lv
 
+    a_bind.lv :var, 'hello'
+    a_bind.iv :@ivar, 'world'
+    a_bind.lv(:arr) << 'bye' << 'world'
+  end
+end
 
-## License
+Test.new.a
 
-The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
+# OUTPUT
+#  #<Binding:78145200 Test#a test.rb:6>
+#  {:@ivar=>2}
+#  {:var=>1, :arr=>[]}
+#  "hello"
+#  "world"
+#  ["bye", "world"]
+```
+
+### Work with pry, get binding of callers from `_bs_`
+
+```ruby
+require 'binding_of_callers/pry'
+
+class Test
+  def a
+    var, @ivar, arr = 1, 2, []
+    b
+    p var, @ivar
+    p arr
+  end
+
+  def b
+    c
+  end
+
+  def c
+    binding.pry
+  end
+end
+
+Test.new.a
+
+# IN PRY
+#  From: /tmp/test_pry.rb @ line 16 Test#c:
+#
+#      15: def c
+#   => 16:   binding.pry
+#      17: end
+#
+#  [1] pry(#<Test>)> _bs_
+#  [#<Binding:76752040 Test#c test_pry.rb:16>,
+#   #<Binding:76751000 Test#b test_pry.rb:12>,
+#   #<Binding:76734010 Test#a test_pry.rb:6>,
+#   #<Binding:76732930 Object#<main> test_pry.rb:20>]
+```
 
