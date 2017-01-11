@@ -6,6 +6,20 @@ class BindingOfCallersTest < Minitest::Test
     refute_nil ::BindingOfCallers::VERSION
   end
 
+  def test_convenient_instance_variable
+    binds = U.invoke
+    assert_equal '@b', binds[1].iv(:@b)
+    binds[1].iv :@b, 'b'
+    assert_equal 'b', binds[1].iv(:@b)
+  end
+
+  def test_convenient_local_variable
+    binds = U.invoke
+    assert_equal 'a', binds[2].lv(:a)
+    binds[2].lv :a, 123
+    assert_equal 123, binds[2].lv(:a)
+  end
+
   def test_it_does_something_useful
     methods.select do |m|
       m =~ /^check/
