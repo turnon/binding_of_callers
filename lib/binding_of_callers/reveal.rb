@@ -4,7 +4,7 @@ module BindingOfCallers
     attr_accessor :src_location
 
     def _binding
-      @_binding or self
+      instance_variable_defined?(:@_binding) ? @_binding : self
     end
 
     def inspect
@@ -19,7 +19,7 @@ module BindingOfCallers
       when 1
         the_iv args[0]
       when 2
-        set_iv *args
+        set_iv(*args)
       end
     end
 
@@ -30,7 +30,7 @@ module BindingOfCallers
       when 1
         the_lv args[0]
       when 2
-        set_lv *args
+        set_lv(*args)
       end
     end
 

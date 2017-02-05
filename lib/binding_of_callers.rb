@@ -21,7 +21,7 @@ class Binding
   private
 
   def enhance &enhance
-    collected.map &enhance
+    collected.map(&enhance)
   end
 
   def collected
