@@ -5,16 +5,14 @@ require 'binding_of_caller'
 class Binding
 
   def of_callers
-    enhance do |bi, loc|
-      BindingOfCallers::Revealed.new bi, loc
+    enhance do |bi|
+      BindingOfCallers::Revealed.new bi
     end
   end
 
   def of_callers!
-    enhance do |bi, loc|
+    enhance do |bi|
       bi.extend BindingOfCallers::Reveal
-      bi.src_location = loc
-      bi
     end
   end
 
@@ -31,9 +29,7 @@ class Binding
       bis << of_caller(n)
       n = n.succ
     end
-    call_st = caller
-    call_st.shift(2)
-    bis.zip call_st
+    bis
   end
 
 end

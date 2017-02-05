@@ -5,11 +5,8 @@ module BindingOfCallers
 
     include Reveal
 
-    attr_reader :_binding, :src_location
-
-    def initialize _binding, src_loc
+    def initialize _binding
       @_binding = _binding
-      @src_location = src_loc
     end
 
   end

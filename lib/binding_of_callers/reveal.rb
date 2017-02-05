@@ -1,14 +1,11 @@
 module BindingOfCallers
   module Reveal
 
-    attr_accessor :src_location
-
     def _binding
       instance_variable_defined?(:@_binding) ? @_binding : self
     end
 
     def inspect
-      file, line = file_line
       "#<#{self.class}:#{object_id} #{klass}#{call_symbol}#{frame_env} #{file}:#{line}>"
     end
 
@@ -48,9 +45,12 @@ module BindingOfCallers
       @call_sym ||= singleton_method? ? '.' : '#'
     end
 
-    def file_line
-      file, line, _ = src_location.split(/:/)
-      [file, line]
+    def file
+      _binding.eval('__FILE__')
+    end
+
+    def line
+      _binding.eval('__LINE__')
     end
 
     def frame_env
