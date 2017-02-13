@@ -1,6 +1,6 @@
 # BindingOfCallers
 
-Something like [binding_of_caller](https://github.com/banister/binding_of_caller "binding_of_caller"), but collect all binding of callers at once
+Something like [binding_of_caller](https://github.com/banister/binding_of_caller "binding_of_caller"), but collect all binding of callers at once, and provide convenient methods to inject variable or code in bindings
 
 ## Installation
 
