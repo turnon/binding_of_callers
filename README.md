@@ -64,7 +64,7 @@ Test.new.a
 #  ["bye", "world"]
 ```
 
-### Work with pry, get binding of callers from `_bs_`
+### Work with pry, get binding of callers from `_bs_` or `_bsi_`(with index)
 
 ```ruby
 require 'binding_of_callers/pry'
