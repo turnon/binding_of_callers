@@ -84,7 +84,7 @@ module BindingOfCallers
     end
 
     def all_lv
-      _binding.local_variables.each_with_object({}) do |lv_name, vars|
+      _binding.send(:local_variables).each_with_object({}) do |lv_name, vars|
         vars[lv_name] = the_lv lv_name
       end
     end
