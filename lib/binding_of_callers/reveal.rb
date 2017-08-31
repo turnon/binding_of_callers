@@ -6,7 +6,7 @@ module BindingOfCallers
     end
 
     def inspect
-      "#<#{self.class}:#{object_id} #{klass}#{call_symbol}#{frame_env} #{file}:#{line}>"
+      "#<#{self.class}:#{object_id} #{file}:#{line} #{klass}#{call_symbol}#{frame_env}>"
     end
 
     def iv *args
