@@ -2,7 +2,7 @@ require 'binding_of_caller'
 
 module Modular
   def self.invoke
-    TopClass.new.invoke
+    SubClassOfBasic.invoke
   end
 
   class ClassInModule
@@ -26,5 +26,20 @@ class TopClass
   def invoke
     top_class = 'top_class'
     @class_in_module.invoke
+  end
+end
+
+class SubClassOfBasic < BasicObject
+  def initialize
+    @sub_class_of_basic = '@sub_class_of_basic'
+    @top_class = ::TopClass.new
+  end
+
+  def invoke
+    @top_class.invoke
+  end
+
+  def self.invoke
+    new.invoke
   end
 end

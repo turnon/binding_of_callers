@@ -48,6 +48,27 @@ class BindingOfCallersTest < Minitest::Test
     refute b.singleton_method?
   end
 
+  def test_klass_of_basic_object_singleton_method_call
+    b = at_line 43
+    refute_nil b
+    assert_equal SubClassOfBasic, b.klass
+  end
+
+  def test_klass_of_basic_object_instance_method_call
+    b = at_line 39
+    refute_nil b
+    assert_equal SubClassOfBasic, b.klass
+  end
+
+  def test_basic_object_singleton_method
+    b = at_line 43
+    refute_nil b
+    assert b.singleton_method?
+    b = at_line 39
+    refute_nil b
+    refute b.singleton_method?
+  end
+
   private
 
   def at_line n

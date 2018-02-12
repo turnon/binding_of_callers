@@ -1,6 +1,8 @@
 module BindingOfCallers
   module Reveal
 
+    Klass = Kernel.instance_method(:class)
+
     def _binding
       instance_variable_defined?(:@_binding) ? @_binding : self
     end
@@ -32,13 +34,15 @@ module BindingOfCallers
     end
 
     def klass
-      @klass ||= _binding.eval(singleton_method? ? 'self' : 'self.class')
+      return @klass if instance_variable_defined? :@klass
+      determine_klass
+      @klass
     end
 
     def singleton_method?
       return @sm if instance_variable_defined? :@sm
-      class_name = _binding.eval 'self.class.name'
-      @sm = (class_name == 'Module' or class_name == 'Class')
+      determine_klass
+      @sm
     end
 
     def call_symbol
@@ -63,6 +67,19 @@ module BindingOfCallers
 
     private
 
+    def determine_klass
+      itself = binding_self
+      binding_class = (Object === itself ? itself.class : Klass.bind(itself).call)
+      class_name = binding_class.name
+      if class_name == 'Module' || class_name == 'Class'
+        @sm = true
+        @klass = itself
+      else
+        @sm = false
+        @klass = binding_class
+      end
+    end
+
     def all_iv
       _binding.eval <<-EOS
         instance_variables.each_with_object({}) do |iv_name, vars|
@@ -80,7 +97,7 @@ module BindingOfCallers
     end
 
     def binding_self
-      _binding.eval "self"
+      _binding.eval "instance_eval('self')"
     end
 
     def all_lv
