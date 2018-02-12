@@ -36,10 +36,12 @@ class SubClassOfBasic < BasicObject
   end
 
   def invoke
+    sub_class_of_basic = 'sub_class_of_basic'
     @top_class.invoke
   end
 
   def self.invoke
+    sub_class_of_basic = 'sub_class_of_basic'
     new.invoke
   end
 end

@@ -49,24 +49,43 @@ class BindingOfCallersTest < Minitest::Test
   end
 
   def test_klass_of_basic_object_singleton_method_call
-    b = at_line 43
+    b = at_line 45
     refute_nil b
     assert_equal SubClassOfBasic, b.klass
   end
 
   def test_klass_of_basic_object_instance_method_call
-    b = at_line 39
+    b = at_line 40
     refute_nil b
     assert_equal SubClassOfBasic, b.klass
   end
 
   def test_basic_object_singleton_method
-    b = at_line 43
+    b = at_line 45
     refute_nil b
     assert b.singleton_method?
-    b = at_line 39
+    b = at_line 40
     refute_nil b
     refute b.singleton_method?
+  end
+
+  def test_all_iv_in_basic_object
+    b = at_line 40
+    refute_nil b
+    assert_equal [:@sub_class_of_basic, :@top_class], b.iv.keys
+  end
+
+  def test_the_iv_in_basic_object
+    b = at_line 40
+    refute_nil b
+    assert_equal '@sub_class_of_basic', b.iv(:@sub_class_of_basic)
+  end
+
+  def test_set_iv_in_basic_object
+    b = at_line 40
+    refute_nil b
+    b.iv(:@sub_class_of_basic, 123)
+    assert_equal 123, b.iv(:@sub_class_of_basic)
   end
 
   private

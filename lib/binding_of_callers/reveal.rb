@@ -2,6 +2,9 @@ module BindingOfCallers
   module Reveal
 
     Klass = Kernel.instance_method(:class)
+    InstanceVariables = Kernel.instance_method(:instance_variables)
+    InstanceVariableGet = Kernel.instance_method(:instance_variable_get)
+    InstanceVariableSet = Kernel.instance_method(:instance_variable_set)
 
     def _binding
       instance_variable_defined?(:@_binding) ? @_binding : self
@@ -69,7 +72,8 @@ module BindingOfCallers
 
     def determine_klass
       itself = binding_self
-      binding_class = (Object === itself ? itself.class : Klass.bind(itself).call)
+      @from_object = (Object === itself)
+      binding_class = (@from_object ? itself.class : Klass.bind(itself).call)
       class_name = binding_class.name
       if class_name == 'Module' || class_name == 'Class'
         @sm = true
@@ -81,19 +85,38 @@ module BindingOfCallers
     end
 
     def all_iv
-      _binding.eval <<-EOS
-        instance_variables.each_with_object({}) do |iv_name, vars|
-          vars[iv_name] = instance_variable_get(iv_name)
+      determine_klass unless instance_variable_defined? :@from_object
+      if @from_object
+        _binding.eval <<-EOS
+          instance_variables.each_with_object({}) do |iv_name, vars|
+            vars[iv_name] = instance_variable_get(iv_name)
+          end
+        EOS
+      else
+        itself = binding_self
+        _instance_variable_get = InstanceVariableGet.bind(itself)
+        InstanceVariables.bind(itself).call.each_with_object({}) do |iv_name, vars|
+          vars[iv_name] = _instance_variable_get.call iv_name
         end
-      EOS
+      end
     end
 
     def the_iv name
-      binding_self.instance_variable_get name
+      determine_klass unless instance_variable_defined? :@from_object
+      if @from_object
+        binding_self.instance_variable_get name
+      else
+        InstanceVariableGet.bind(binding_self).call name
+      end
     end
 
     def set_iv name, value
-      binding_self.instance_variable_set name, value
+      determine_klass unless instance_variable_defined? :@from_object
+      if @from_object
+        binding_self.instance_variable_set name, value
+      else
+        InstanceVariableSet.bind(binding_self).call name, value
+      end
     end
 
     def binding_self
