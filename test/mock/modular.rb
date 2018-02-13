@@ -22,7 +22,7 @@ end
 
 class TopClass
 
-  attr_reader :top_class
+  attr_reader :top_class, :return_local
 
   def initialize
     @top_class = '@top_class'
@@ -31,21 +31,23 @@ class TopClass
 
   def invoke
     top_class = 'top_class'
+    @return_local = -> { top_class }
     @class_in_module.invoke
   end
 end
 
 class SubClassOfBasic < BasicObject
 
-  attr_reader :sub_class_of_basic
+  attr_reader :sub_class_of_basic, :return_local
 
   def initialize
     @sub_class_of_basic = '@sub_class_of_basic'
-    @top_class = ::TopClass.new
+    ::Thread.current[:top_class] = @top_class = ::TopClass.new
   end
 
   def invoke
     sub_class_of_basic = 'sub_class_of_basic'
+    @return_local = -> { sub_class_of_basic }
     @top_class.invoke
   end
 
