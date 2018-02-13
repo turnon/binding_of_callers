@@ -1,6 +1,11 @@
 module BindingOfCallers
   module Reveal
 
+    Klass = Kernel.instance_method(:class)
+    InstanceVariables = Kernel.instance_method(:instance_variables)
+    InstanceVariableGet = Kernel.instance_method(:instance_variable_get)
+    InstanceVariableSet = Kernel.instance_method(:instance_variable_set)
+
     def _binding
       instance_variable_defined?(:@_binding) ? @_binding : self
     end
@@ -32,13 +37,15 @@ module BindingOfCallers
     end
 
     def klass
-      @klass ||= _binding.eval(singleton_method? ? 'self' : 'self.class')
+      return @klass if instance_variable_defined? :@klass
+      determine_klass
+      @klass
     end
 
     def singleton_method?
       return @sm if instance_variable_defined? :@sm
-      class_name = _binding.eval 'self.class.name'
-      @sm = (class_name == 'Module' or class_name == 'Class')
+      determine_klass
+      @sm
     end
 
     def call_symbol
@@ -63,24 +70,57 @@ module BindingOfCallers
 
     private
 
+    def determine_klass
+      itself = binding_self
+      @from_object = (Object === itself)
+      binding_class = (@from_object ? itself.class : Klass.bind(itself).call)
+      class_name = binding_class.name
+      if class_name == 'Module' || class_name == 'Class'
+        @sm = true
+        @klass = itself
+      else
+        @sm = false
+        @klass = binding_class
+      end
+    end
+
     def all_iv
-      _binding.eval <<-EOS
-        instance_variables.each_with_object({}) do |iv_name, vars|
-          vars[iv_name] = instance_variable_get(iv_name)
+      determine_klass unless instance_variable_defined? :@from_object
+      if @from_object
+        _binding.eval <<-EOS
+          instance_variables.each_with_object({}) do |iv_name, vars|
+            vars[iv_name] = instance_variable_get(iv_name)
+          end
+        EOS
+      else
+        itself = binding_self
+        _instance_variable_get = InstanceVariableGet.bind(itself)
+        InstanceVariables.bind(itself).call.each_with_object({}) do |iv_name, vars|
+          vars[iv_name] = _instance_variable_get.call iv_name
         end
-      EOS
+      end
     end
 
     def the_iv name
-      binding_self.instance_variable_get name
+      determine_klass unless instance_variable_defined? :@from_object
+      if @from_object
+        binding_self.instance_variable_get name
+      else
+        InstanceVariableGet.bind(binding_self).call name
+      end
     end
 
     def set_iv name, value
-      binding_self.instance_variable_set name, value
+      determine_klass unless instance_variable_defined? :@from_object
+      if @from_object
+        binding_self.instance_variable_set name, value
+      else
+        InstanceVariableSet.bind(binding_self).call name, value
+      end
     end
 
     def binding_self
-      _binding.eval "self"
+      _binding.eval "instance_eval('self')"
     end
 
     def all_lv
