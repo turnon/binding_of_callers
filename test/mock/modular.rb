@@ -6,6 +6,9 @@ module Modular
   end
 
   class ClassInModule
+
+    attr_reader :class_in_module
+
     def initialize
       @class_in_module = '@class_in_module'
     end
@@ -18,9 +21,12 @@ module Modular
 end
 
 class TopClass
+
+  attr_reader :top_class
+
   def initialize
     @top_class = '@top_class'
-    @class_in_module = Modular::ClassInModule.new
+    Thread.current[:class_in_module] = @class_in_module = Modular::ClassInModule.new
   end
 
   def invoke
@@ -30,6 +36,9 @@ class TopClass
 end
 
 class SubClassOfBasic < BasicObject
+
+  attr_reader :sub_class_of_basic
+
   def initialize
     @sub_class_of_basic = '@sub_class_of_basic'
     @top_class = ::TopClass.new
@@ -42,6 +51,6 @@ class SubClassOfBasic < BasicObject
 
   def self.invoke
     sub_class_of_basic = 'sub_class_of_basic'
-    new.invoke
+    (::Thread.current[:sub_class_of_basic] = new).invoke
   end
 end
