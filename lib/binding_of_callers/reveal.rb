@@ -120,7 +120,7 @@ module BindingOfCallers
     end
 
     def binding_self
-      _binding.eval "instance_eval('self')"
+      _binding.receiver
     end
 
     def all_lv

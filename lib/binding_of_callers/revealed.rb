@@ -5,9 +5,10 @@ module BindingOfCallers
 
     include Reveal
 
+    attr_reader :_binding
+
     def initialize _binding
       @_binding = _binding
     end
-
   end
 end
