@@ -23,6 +23,9 @@ Or install it yourself as:
 ```ruby
 binding.of_callers # => an array of wrapped binding of callers
 binding.of_callers! # => an array of extended binding of callers
+
+binding.partial_callers(4) # => get closest four frames
+binding.partial_callers(-2) # => get frames excluding the bottom two
 ```
 
 ### Inspect and modify a binding
