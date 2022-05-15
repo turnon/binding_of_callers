@@ -16,6 +16,12 @@ class Binding
     end
   end
 
+  def partial_callers(limit)
+    _callers = callers
+    limit = _callers.size + limit if limit < 0
+    _callers[1, limit].map!{ |c| BindingOfCallers::Revealed.new(c) }
+  end
+
   private
 
   def enhance(fc, &enhance)
